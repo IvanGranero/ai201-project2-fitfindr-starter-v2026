@@ -13,6 +13,8 @@ Build and test your three tools in `tools.py` first. Then come here.
     python agent.py          runs both example paths below
 """
 
+from itertools import count
+
 import config
 import trace
 from tools import search_listings, suggest_outfit, create_fit_card
@@ -66,15 +68,6 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     ─────────────────────────────────────────────────────────────────────────
     TODO — build this, following the branch rule you wrote in Milestone 2.
 
-      1. Start a session with new_session().
-
-      2. Count the times round the loop, and call trace.check_iterations(count)
-         on each one before you go again. It raises when the count passes
-         MAX_ITERATIONS in config.py — see trace.py.
-
-      3. Parse the query into a description, a size, and a max_price. Regex,
-         string splitting, or asking the model are all fine — say which you
-         chose in your README. Put the result in session["parsed"].
 
       4. Call search_listings() with what you parsed.
          Put the results in session["search_results"].
@@ -95,7 +88,22 @@ def run_agent(query: str, wardrobe: dict) -> dict:
          Put the result in session["fit_card"].
 
       8. Return the session.
+    """
+    #1. Start a session with new_session().
+    session = new_session(query, wardrobe)
 
+    # 2. Count the times round the loop, and call trace.check_iterations(count)
+    # on each one before you go again. It raises when the count passes
+    # MAX_ITERATIONS in config.py — see trace.py.
+    count = 1
+
+    trace.check_iterations(count)
+
+    # 3. Parse the query into a description, a size, and a max_price. Regex,
+    # string splitting, or asking the model are all fine — say which you
+    # chose in your README. Put the result in session["parsed"].    
+
+    """
     ─────────────────────────────────────────────────────────────────────────
     IN UNIT 4 you come back and add two things:
 
@@ -105,7 +113,8 @@ def run_agent(query: str, wardrobe: dict) -> dict:
       • A handler for ModelUnavailable, so a bad key produces a message rather
         than a stack trace. The import is already at the top of this file.
     """
-    session = new_session(query, wardrobe)
+
+
 
     # TODO: delete these two lines and build the loop.
     session["error"] = "The planning loop isn't built yet — see the TODO in agent.py."
