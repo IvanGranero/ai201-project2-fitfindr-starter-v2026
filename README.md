@@ -39,9 +39,7 @@
 
 ## What This Does
 
-<!-- Three or four sentences: what a user asks for, and what they get back. -->
-
-User asks for clothing piece that he/she is looking for for example 'a denim jacker under 50 bucks' and the agent will search for matches for it and get back with a match from the wardrove.
+FitFindr helps users discover thrifted clothing items that match what they are looking for. A user can enter a request such as "vintage graphic tee under $30, size M" and the agent searches the available listings for matching items. Once a suitable item is found, the agent suggests outfit ideas based on the user's wardrobe and generates a social-media-style fit card describing the find. If no matching item is available, the agent explains what the user can change, such as the keywords, size, or budget.
 
 ---
 
@@ -103,26 +101,31 @@ User asks for clothing piece that he/she is looking for for example 'a denim jac
 
 **Branch rule:**
 
-If search_listings() returns an empty list ([]), add a message explaining that no matching listings were found and stop the workflow.
-Otherwise, take the first listing from the returned results, pass it to suggest_outfit(), then pass the outfit suggestion and listing to create_fit_card(), and return the completed result.
+If `search_listings()` returns an empty list, `run_agent()` stores an error message in `session["error"]`, returns the session immediately, and does not call `suggest_outfit()` or `create_fit_card()`.
+ 
+Otherwise, `run_agent()` stores the first search result in `session["selected_item"]`, passes that item to `suggest_outfit()`, stores the outfit suggestion in `session["outfit_suggestion"]`, passes both the selected item and outfit suggestion to `create_fit_card()`, stores the result in `session["fit_card"]`, and returns the completed session.
 
-Gap:
+*Gap*
 Size matching rule: A listing matches when the requested size appears as a complete size token in the listing's size field (for example, "M" matches "S/M" but not "US 9", and "L" does not automatically match "XL").
+
 
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
+**How the query is parsed:**
+The query is parsed using regular expressions and string processing. Regex is used to extract size values (such as `S`, `M`, `L`) and maximum price values from phrases like "under $30". The remaining text is used as the item description for `search_listings()`.
 
-**What moves through the session:** <!-- which fields, in what order -->
+**What moves through the session:**
+1. `session["query"]` stores the user's original request.
+2. `session["parsed"]` stores the extracted `description`, `size`, and `max_price`.
+3. `session["search_results"]` stores the list returned by `search_listings()`.
+4. If results exist, `session["selected_item"]` stores the first matching listing.
+5. `session["outfit_suggestion"]` stores the string returned by `suggest_outfit()`.
+6. `session["fit_card"]` stores the caption returned by `create_fit_card()`.
+7. If no listings are found, `session["error"]` stores a message telling the user to adjust their keywords, size, or price limit, and the loop stops before calling the remaining tools.
 
 ---
 
 ## Sample Run
-
-<!-- Two things go here.
-
-     1. One FULL query and its output, pasted as text.
-     2. Your three per-tool terminal tests — the command and what it printed. -->
 
 **One full query**
 
@@ -176,14 +179,22 @@ Nothing beats the effortless cool of a broken-in medium wash, especially when yo
 **Moment 1**
 
 - *What I asked for:*
+Help implementing the search_listings() function, including filtering by description, size, and maximum price, and ranking results by keyword relevance.
 - *What came back:*
+AI generated a version of the function that loaded the listings, filtered them, scored matches by keyword overlap, and returned ranked results.
 - *What I changed:*
+I verified that the function returned an empty list ([]) when no matches were found and reviewed the size-matching logic to ensure sizes such as "S" did not incorrectly match values like "US 9".
 
 **Moment 2**
 
 - *What I asked for:*
+Help implementing the run_agent() planning loop and identifying the correct branch condition when no search results are found.
 - *What came back:*
+AI suggested storing tool outputs in the session object and branching on an empty search result before calling downstream tools.
 - *What I changed:*
+I made sure each tool result was saved into the session and then read back from the session for the next step. I also added an error message that tells the user to adjust their keywords, size, or price limit instead of simply returning "No results."
+
+
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
