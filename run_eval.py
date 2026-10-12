@@ -35,7 +35,7 @@ import traceback
 
 import config
 import scenarios as scenario_module
-
+import time
 
 def run_once(scenario, use_trace=True):
     """One scenario, one try. Returns everything worth recording."""
@@ -110,6 +110,7 @@ def main():
 
         rows.append({"scenario": scenario, "tries": tries})
         print()
+        time.sleep(4)
 
     write_report(rows, args)
 

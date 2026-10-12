@@ -216,17 +216,100 @@ I made sure each tool result was saved into the session and then read back from 
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. Matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. Impossible query stops before the second tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. Selected item state is preserved | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. Fit card mentions price and has 2–4 sentences | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Search results stay within maximum price | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
-**Real output from one try**, pasted as text, naming the file and function
-that produced it:
+**Real output from one try per criterion**
+
+The trace lines below are printed by `trace.py::step`, called from
+`agent.py::run_agent`. The try status is printed by `run_eval.py::main`.
+
+**1. Matching query completes all three tools** — `agent.py::run_agent`,
+reported by `run_eval.py::run_once`:
 
 ```
+matching query completes  (example wardrobe)
+  query: vintage graphic tee under $30
+[1] parse_query
+      in:  dict with keys: query
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, max_price
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+[3] suggest_outfit
+      in:  dict with keys: selected_item, wardrobe
+      out: **Outfit 1: Casual Y2K Streetwear** Pair the Y2K butterfly baby tee with your **baggy straight-leg jeans (dark…
+[4] create_fit_card
+      in:  dict with keys: outfit, selected_item
+      out: Channeling total 2000s pop-princess energy with this dreamy butterfly Y2K baby tee! I love styling it with bag…
+  try 1: completed — fit card 329 chars
+```
 
+**2. Impossible query stops before the second tool** — `agent.py::run_agent`,
+reported by `run_eval.py::run_once`:
+
+```
+impossible query stops early  (example wardrobe)
+  query: designer ballgown size XXS under $5
+[1] parse_query
+      in:  dict with keys: query
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, max_price
+      out: [] (empty)
+  try 1: stopped early — No matching listings were found. Try changing the keywords,
+```
+
+**3. Selected item state is preserved** — session summary saved by
+`run_eval.py::write_report`; the tool-call trace and status come from
+`agent.py::run_agent` and `run_eval.py::main`:
+
+```
+- stopped early: no
+- selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+- search_results: 10
+[3] suggest_outfit
+      in:  dict with keys: selected_item, wardrobe
+      out: Here are two ways to style your new Y2K Butterfly Baby Tee using pieces from your wardrobe:  **Look 1: Casual …
+  try 1: completed — fit card 398 chars
+```
+
+**4. Fit card mentions price and has 2–4 sentences** — complete fit-card output
+from `tools.py::create_fit_card`, reported by `run_eval.py::write_report`:
+
+```
+Channel your inner 2000s pop star with this dreamy Y2K Butterfly Baby Tee! I love pairing it with baggy denim and a zip-up hoodie for that ultimate off-duty streetwear vibe. Grab this sweet little piece for just $18 over on my Depop before it's gone!
+```
+
+**5. Search results stay within maximum price** — `agent.py::run_agent`,
+reported by `run_eval.py::run_once`:
+
+```
+search results stay within maximum price  (example wardrobe)
+  query: denim jacket under $50
+[1] parse_query
+      in:  dict with keys: query
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, max_price
+      out: 7 items: Denim Jacket — Light Wash, Cropped, Vintage Levi's 501 Jeans — Medium Wash, 90s Track Jacket — Navy/White Stripe … +4 more
+[3] suggest_outfit
+      in:  dict with keys: selected_item, wardrobe
+      out: Here are two ways to style your new cropped light-wash denim jacket using pieces from your wardrobe:  **1. Hig…
+[4] create_fit_card
+      in:  dict with keys: outfit, selected_item
+      out: Score! Just scored the ultimate vintage-vibed cropped light-wash denim jacket for only $42 over on Poshmark. I…
+  try 1: completed — fit card 279 chars
+```
+
+MCP result values for the same parsed search inputs, printed from
+`mcp_client.py::call_tool` (served by `mcp_server.py::search_listings`):
+
+```
+[('Denim Jacket — Light Wash, Cropped', 42.0), ("Vintage Levi's 501 Jeans — Medium Wash", 38.0), ('90s Track Jacket — Navy/White Stripe', 45.0), ('High-Waisted Denim Shorts — Cutoff', 24.0), ('Shacket — Olive Canvas', 33.0), ('Straight Leg Black Jeans — Faded', 30.0), ('Denim Vest — Medium Wash, Studded', 27.0)]
 ```
 
 ---

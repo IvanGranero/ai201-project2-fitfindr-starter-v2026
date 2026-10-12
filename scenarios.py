@@ -35,7 +35,27 @@ SCENARIOS = [
         "wardrobe": "empty",
         "criterion": None,
     },
-    # TODO: add what your criteria 3, 4 and 5 need.
+    {
+        # Matching result is passed unchanged into suggest_outfit. Criterion 3.
+        "name": "selected item state is preserved",
+        "query": "vintage graphic tee under $30",
+        "wardrobe": "example",
+        "criterion": 3,
+    },
+    {
+        # Repeating this matching query tests generated fit cards. Criterion 4.
+        "name": "fit card includes price and has 2-4 sentences",
+        "query": "vintage graphic tee under $30",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
+        # A matching query with a price ceiling tests filtering. Criterion 5.
+        "name": "search results stay within maximum price",
+        "query": "denim jacket under $50",
+        "wardrobe": "example",
+        "criterion": 5,
+    },
     #
     # Set "criterion" to the number in criteria.md that the scenario tests.
     # "criterion": None means a diagnostic run — useful to have, but it isn't
