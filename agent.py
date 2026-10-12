@@ -20,6 +20,9 @@ import trace
 from mcp_client import call_tool
 from tools import suggest_outfit, create_fit_card
 from generate import ModelUnavailable
+from trace import start_trace
+
+from trace import step
 
 
 # ── session state ─────────────────────────────────────────────────────────────
@@ -100,11 +103,15 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     count = 1
     trace.check_iterations(count)
 
-    # 3. Parse the query into a description, a size, and a max_price. Regex,
-        # string splitting, or asking the model are all fine — say which you
-        # chose in your README. Put the result in session["parsed"].    
-    
+    trace.start_trace()
+
+
+
+   
     description, size, max_price = parse_query(query)
+
+    trace.step("parse_query", inputs={"query": query}, returned={"description": description, "size": size, "max_price": max_price})
+
 
     session["parsed"] = {
         "description": description,
@@ -113,12 +120,14 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     }
 
     # 4. Search
+
     results = call_tool("search_listings", {
         "description": description,
         "size": size,
         "max_price": max_price,
     })
-
+    trace.step("search_listings (via MCP)", inputs={"description": description, "max_price": max_price}, returned=results)
+    
     session["search_results"] = results
 
     # BRANCH
@@ -136,13 +145,16 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     # 6. Outfit suggestion
     outfit = suggest_outfit(selected_item, wardrobe)
     session["outfit_suggestion"] = outfit
+    trace.step("suggest_outfit", inputs={"selected_item": selected_item, "wardrobe": wardrobe}, returned=outfit)
 
     # 7. Fit card
     fit_card = create_fit_card(outfit, selected_item)
     session["fit_card"] = fit_card
+    trace.step("create_fit_card", inputs={"outfit": outfit, "selected_item": selected_item}, returned=fit_card)
 
     
     # 8. Return completed session
+    trace.get_trace()
     return session
 
     

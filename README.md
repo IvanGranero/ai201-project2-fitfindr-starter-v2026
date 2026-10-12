@@ -276,22 +276,62 @@ that produced it:
      anyone will ever find that out. -->
 
 **Happy path**
-
 ```
+python app.py ask 'jeans $50' --trace
+[1] parse_query
+      in:  dict with keys: query
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, max_price
+      out: 3 items: Vintage Levi's 501 Jeans — Medium Wash, Baggy Carpenter Jeans — Dark Wash, Straight Leg Black Jeans — Faded
+[3] suggest_outfit
+      in:  dict with keys: selected_item, wardrobe
+      out: Here are two ways to style your new vintage Levi's 501 jeans using pieces from your wardrobe:  **1. Casual Str…
+[4] create_fit_card
+      in:  dict with keys: outfit, selected_item
+      out: Nothing beats the effortless vibe of these vintage Levi's 501 jeans, giving you that perfectly broken-in look …
 
+  Found:    Vintage Levi's 501 Jeans — Medium Wash — $38.0 on depop
+
+  Outfit:   Here are two ways to style your new vintage Levi's 501 jeans using pieces from your wardrobe:
+
+**1. Casual Streetwear**
+Pair the vintage Levi's with the **white ribbed tank top** tucked in, layered under your **black cropped zip hoodie**. Finish the look with the **chunky white sneakers** and your **black crossbody bag** for an effortless, everyday vibe.
+
+**2. Edgy Denim-on-Denim**
+Wear the jeans with the **oversized grey crewneck sweatshirt** over your shoulders or half-tucked. Throw on the **vintage black denim jacket** for a cool contrast of washes, and anchor the outfit with the **black combat boots** and **brown leather belt**.
+
+  Fit card: Nothing beats the effortless vibe of these vintage Levi's 501 jeans, giving you that perfectly broken-in look for just $38. Style them with a cropped hoodie and chunky sneakers for an everyday streetwear fit, or double down on denim with combat boots for an edgy contrast. Grab them over on Depop before someone else snags your new go-to denim!
+
+1 model calls this session, 1 served from cache, 303 prompt + 77 output tokens
 ```
 
 **Empty search**
 
 ```
+python app.py ask 'designer ballgown size XXS under $5' --trace
+[1] parse_query
+      in:  dict with keys: query
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, max_price
+      out: [] (empty)
 
+  No matching listings were found. Try changing the keywords, size, or price limit.
+
+0 model calls this session
 ```
 
-**On the MCP move:** <!-- what changed in your code, and whether anything
-behaved differently afterwards. If the rewire didn't work, say exactly where it
-broke — the error text and the last thing that worked. That earns the point in
-full. -->
-
+**On the MCP move:** I registered `search_listings` in `mcp_server.py` with
+the `description` (`str`), `size` (`str | None`), and `max_price`
+(`float | None`) inputs, then changed `agent.py::run_agent` to call
+`mcp_client.call_tool("search_listings", ...)` instead of calling the tool
+directly. `python mcp_client.py` listed the registered tool and its input
+schema. I also compared direct and MCP calls: both returned the same 10
+matching listing dictionaries as a Python `list`. An end-to-end agent query
+completed through MCP, selected a listing, and continued to outfit and fit-card
+generation. The call path changed, but the returned data shape and subsequent
+agent behavior did not.
 
 
 ---
