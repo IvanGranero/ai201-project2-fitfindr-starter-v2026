@@ -479,37 +479,48 @@ demonstrated increase in reliability yet.
      you did. "I ran out of time" is fine if it's true. Pretending nothing is
      left is not. -->
 
+No acceptance criteria remained missed after the improvement; all five passed
+5 of 5 tries. There is still a limitation: five trials are a small sample, and
+asking the model for exactly three sentences does not enforce that format
+deterministically. I did not add output validation or a retry because every
+caption in the measured after run met the existing 2–4 sentence criterion. I
+would test more items and runs before deciding whether that extra enforcement
+is needed.
 
+**MCP move:** I registered `search_listings` in `mcp_server.py` and rewired
+`agent.py::run_agent` to call it through `mcp_client.call_tool`. Tool discovery,
+the list-of-dictionaries return shape, and the end-to-end agent behavior all
+worked as expected; I observed no behavior change beyond the call path.
 
 <!-- ═════════════════════════════════════════════════════════════════════
 
      SUBMISSION CHECKLIST — unit 3
 
-       [ ] criteria.md has five numbered criteria, each with a target
-       [ ] Each criterion has a reason underneath it
-       [ ] All five unit 3 sections above have real content
-       [ ] Tool Inventory: all three tools, inputs WITH TYPES, a specific
+       [ X ] criteria.md has five numbered criteria, each with a target
+       [ X ] Each criterion has a reason underneath it
+       [ X ] All five unit 3 sections above have real content
+       [ X ] Tool Inventory: all three tools, inputs WITH TYPES, a specific
            return value, and the empty case
-       [ ] Planning Loop names the branch rule and agent.py::run_agent
-       [ ] Sample Run: one full query plus the three per-tool tests, as text
-       [ ] At least four new commits
-       [ ] Repository URL submitted — WRITE IT DOWN, you submit the same one
+       [ X ] Planning Loop names the branch rule and agent.py::run_agent
+       [ X ] Sample Run: one full query plus the three per-tool tests, as text
+       [ X ] At least four new commits
+       [ X ] Repository URL submitted — WRITE IT DOWN, you submit the same one
            next unit
 
      SUBMISSION CHECKLIST — unit 4
 
-       [ ] mcp_server.py exists with one tool registered
+       [ X ] mcp_server.py exists with one tool registered
            (or a written record of exactly where the rewire broke)
-       [ ] Run Log — Before, five criteria, five tries each
-       [ ] Real output pasted underneath, naming file and function
-       [ ] A verdict on every criterion
-       [ ] A diagnosis for every miss, naming a place AND a mechanism
-       [ ] Loop Trace, with the MCP call visible in it
-       [ ] All three failure modes triggered and handled
-       [ ] One improvement, with Run Log — After in the same format
-       [ ] What's Still Broken
-       [ ] At least four new commits
-       [ ] The SAME repository URL as last unit
+       [ X ] Run Log — Before, five criteria, five tries each
+       [ X ] Real output pasted underneath, naming file and function
+       [ X ] A verdict on every criterion
+       [ X ] A diagnosis for every miss, naming a place AND a mechanism
+       [ X ] Loop Trace, with the MCP call visible in it
+       [ X ] All three failure modes triggered and handled
+       [ X ] One improvement, with Run Log — After in the same format
+       [ X ] What's Still Broken
+       [ X ] At least four new commits
+       [ X ] The SAME repository URL as last unit
 
      Do not delete and recreate this repository. Your commit history is what
      shows your criteria existed before your results did.
