@@ -161,7 +161,7 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     {outfit}
 
     Requirements:
-    - 2 to 4 sentences.
+    - Exactly 3 complete sentences.
     - Mention the item once.
     - Mention the price once.
     - Mention the platform once.

@@ -432,21 +432,39 @@ agent behavior did not.
 
      `python run_eval.py --label after` -->
 
-**What I changed:**
+**What I changed:** In `tools.py::create_fit_card`, I changed the prompt
+requirement from 2–4 sentences to exactly 3 complete sentences. Three is still
+inside the acceptance criterion's allowed range; this gives the model one
+clear target instead of a range.
 
-**Which failure it was meant to fix:**
+**Which failure it was meant to fix:** The before run had no misses, so this
+was not a fix for a failure already observed. Criterion 4 passed 5 of 5 times;
+this is a preventative prompt change based on the diagnosis that this
+model-generated criterion is worth testing more strictly.
 
 ### Run Log — After
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. Matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. Impossible query stops before the second tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. Selected item state is preserved | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. Fit card mentions price and has 2–4 sentences | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Search results stay within maximum price | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
-**Did it help, and how do I know:**
+Full output: [`results/run_2026-10-12_1538_after.md`](./results/run_2026-10-12_1538_after.md),
+produced by `run_eval.py::main`. The first attempt could not run model-backed
+scenarios because the environment lacked the declared `google-genai` package
+(`ModelUnavailable: Couldn't reach the model: No module named 'google'`).
+After installing the declared dependency, I reran the complete evaluation;
+the table above reflects that successful run.
+
+**Did it help, and how do I know:** All five after-run captions for criterion 4
+contained the selected item's price and exactly 3 sentences, so the revised
+prompt stayed within the criterion and the overall result remained 5/5. The
+measured pass rate did not increase because it was already 5/5 before the
+change; the improvement makes the generation target more specific, not a
+demonstrated increase in reliability yet.
 
 <!-- If it made things worse, say that. Honestly reported, that earns full
      credit and is more interesting than one that worked. -->
